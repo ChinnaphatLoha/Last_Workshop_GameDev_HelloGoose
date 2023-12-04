@@ -1,128 +1,106 @@
+// ! import Phaser
 import Phaser from "phaser";
 
-let bg;
-let bgLayer1;
-let bgLayer2;
-let cloudGroup;
-let cloud1;
-let cloud2;
-let cloud3;
-let sakura;
-let platformBase;
-let player;
+// declare a variable // ! to hold the background
 
+// ! create a class extending Phaser.Scene
 class GameScene extends Phaser.Scene {
   constructor() {
-    super("GameScene");
+    super({
+      key: "GameScene",
+    });
+    this.bg;
+    this.player;
   }
 
   preload() {
-    //background
     this.load.image(
-      "background",
-      "assets/image/game-scene/background/background-dark.png"
-    );
-    this.load.image(
-      "background_Layer2",
-      "assets/image/game-scene/background/bg-dark-layer2.png"
-    );
-    this.load.image(
-      "background_Layer1",
-      "assets/image/game-scene/background/bg-dark-layer1.png"
+      "bg-pink",
+      "assets/image/game-scene/background/background-pink.png"
     );
 
-    //clouds
-    this.load.image("cloud1", "assets/image/game-scene/platforms/cl-long.png");
-    this.load.image("cloud2", "assets/image/game-scene/platforms/cl.png");
-    this.load.image("cloud3", "assets/image/game-scene/platforms/cl-long2.png");
-
-    //sakura animation
     this.load.spritesheet(
-      "sakuraAnim",
-      "assets/image/game-scene/spritesheets/sakuraAnim.png",
+      "goose",
+      "assets/image/game-scene/spritesheets/goose.png",
       {
-        frameWidth: 888,
-        frameHeight: 627,
+        frameWidth: 251, // * width of each frame devided by 7
+        frameHeight: 250,
       }
     );
 
-    //platforms
-    this.load.image(
-      "platform-base",
-      "assets/image/game-scene/platforms/platform-long4.png"
-    );
+    this.load.image("logs", "assets/image/game-scene/components/logs.png");
+    this.load.image("platform", "assets/image/game-scene/platforms/ground.png");
+  }
 
-    //player
-    this.load.image("player", "assets/image/_dev/ufo.png");
+  addAnimations() {
+    // create animations
+    this.anims.create({
+      key: "player-walk", // ชื่ออนิเมชั่น
+      frames: this.anims.generateFrameNumbers("goose", {
+        start: 0,
+        end: 6,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
   }
 
   create() {
-    //background
-    bg = this.add.tileSprite(0, 0, 1280, 720, "background").setOrigin(0, 0);
+    console.log("GameScene was started");
+    this.addAnimations();
+    this.bg = this.add
+      .tileSprite(0, 0, 1280, 720, "bg-pink") // x, y, width, height, key
+      .setOrigin(0, 0); // set origin to // ! top left
 
-    bgLayer1 = this.add
-      .tileSprite(0, 0, 1280, 720, "background_Layer1")
+    // * this.myCam = this.cameras.main
+    // * this.myCam.setBounds(0,0, 1280, 720)
+    // * this.myCam.setZoom(2)
+
+    // // set world bound.
+    // this.player.setCollideWorldBounds(true)
+    // // x, y, Width, Height
+    // this.physics.world.setBounds(0, 0, 1500, 720)
+    // // L R T D
+    // this.physics.world.setBoundsCollision(true, true, true, true)
+
+    this.player = this.physics.add.sprite(700, 350, "goose");
+
+    // ? adding new platform by using tileSprite
+    this.platform = this.add
+      .tileSprite(0, 600, 1280, 100, "platform")
       .setOrigin(0, 0);
 
-    bgLayer2 = this.add
-      .tileSprite(0, 0, 1280, 720, "background_Layer2")
-      .setOrigin(0, 0);
+    this.groupObject = this.physics.add.staticGroup();
+    this.groupObject.create(400, 0, "logs");
+    this.groupObject.create(200, 200, "logs");
+    this.groupObject.add(this.platform);
 
-    //cloudGroup with clouds
-    cloudGroup = this.physics.add.staticGroup();
+    // ? collider
+    // * this.physics.add.collider(this.player, this.groupObject)
 
-    cloud1 = cloudGroup
-      .create(100, 500, "cloud1")
-      .setOrigin(0, 1)
-      .setScale(0.6);
+    // todo How overlap and output ("Hey you hit me")
+    // callback function()
+    // * this.physics.add.overlap(this.player, this.platform, () => {
+    // *  // code here...
 
-    cloud2 = cloudGroup
-      .create(1240, 330, "cloud2")
-      .setOrigin(1, 1)
-      .setScale(0.6);
+    // * })
 
-    cloud3 = cloudGroup
-      .create(200, 200, "cloud3")
-      .setOrigin(0, 1)
-      .setScale(0.6);
-
-    //sakura with animation
-    sakura = this.add
-      .sprite(890, 660, "sakuraAnim")
-      .setOrigin(0.5, 1)
-      .setScale(0.6);
-
-    this.anims.create({
-      key: "sakuraAnim",
-      frames: this.anims.generateFrameNumbers("sakuraAnim", {
-        start: 0,
-        end: 5,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-    sakura.anims.play("sakuraAnim");
-
-    //platforms
-    platformBase = this.physics.add
-      .sprite(640, 730, "platform-base")
-      .setOrigin(0.5, 1);
-
-    //player
-    player = this.physics.add
-      .sprite(460, 360, "player")
-      .setOrigin(0.5, 0.5)
-      .setCollideWorldBounds(true)
-      .setScale(0.05)
-      .setSize(2000, 1000);
+    // * function callbackHit () {
+    // * console.log("Hey you hit me.!!!")
+    // * }
+    // todo How overlap and output ("Hey you hit me")
+    // callback function()
+    // * this.physics.add.overlap(this.player, this.platform, "// callback function here ")
   }
 
   update() {
-    //background movement
-    bg.tilePositionX += 0.03;
-    bgLayer1.tilePositionX += 0.07;
-    bgLayer2.tilePositionX += 0.1;
+    this.bg.tilePositionX += 1;
+    // this.player.x += 2
+    // this.myCam.startFollow(this.player)
+    this.player.anims.play("player-walk", true); // ชื่ออนิเมชั่น,
+
+    // ! Change scene to 'GameScene2'
+    this.scene.start("Event1");
   }
 }
 

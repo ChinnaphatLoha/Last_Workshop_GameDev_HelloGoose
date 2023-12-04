@@ -86,7 +86,10 @@ export function create(applyPhysics) {
   // Platforms
   this.platformBase = this.physics.add
     .sprite(640, 730, "platform-base")
-    .setOrigin(0.5, 1);
+    .setOrigin(0.5, 1)
+    .setImmovable(true); // * this line
+
+  this.platformBase.body.allowGravity = false; //! no gravity
 
   // Player
   this.player = this.physics.add
